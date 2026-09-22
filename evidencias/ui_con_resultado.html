@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"/>
+<title>Diffie-Hellman · Alice ↔ Bob</title>
+<style>
+:root { --bg:#0b0f19; --panel:#111827; --border:#1f2937; --text:#d1d5db; --muted:#6b7280;
+  --alice:#60a5fa; --bob:#34d399; --ok:#22c55e; --fail:#ef4444; --accent:#8b5cf6; }
+* { box-sizing:border-box; margin:0; padding:0; }
+body { background:var(--bg); color:var(--text); font-family:"Segoe UI",system-ui,sans-serif; padding:24px; }
+header { max-width:1200px; margin:0 auto 24px; text-align:center; }
+header h1 { font-size:1.6rem; color:#fff; }
+header p { color:var(--muted); margin-top:6px; }
+.badge { display:inline-block; margin-top:10px; padding:4px 12px; border:1px solid var(--border);
+  border-radius:999px; font-size:.78rem; color:var(--accent); background:rgba(139,92,246,.08); }
+.controls { max-width:1200px; margin:0 auto 20px; display:flex; gap:12px; justify-content:center; align-items:center; }
+button { background:linear-gradient(135deg,#7c3aed,#4f46e5); color:#fff; border:0; padding:12px 28px;
+  border-radius:10px; font-size:1rem; font-weight:600; }
+#resultado { font-weight:700; padding:10px 18px; border-radius:10px; }
+#resultado.ok { background:rgba(34,197,94,.12); color:var(--ok); border:1px solid var(--ok); }
+#resultado.fail { background:rgba(239,68,68,.12); color:var(--fail); border:1px solid var(--fail); }
+.grid { max-width:1200px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.panel { background:var(--panel); border:1px solid var(--border); border-radius:12px; overflow:hidden; display:flex; flex-direction:column; }
+.head { padding:12px 16px; font-weight:700; border-bottom:1px solid var(--border);
+  display:flex; justify-content:space-between; }
+.alice .head { color:var(--alice); background:rgba(96,165,250,.06); }
+.bob .head { color:var(--bob); background:rgba(52,211,153,.06); }
+.head small { color:var(--muted); font-weight:400; font-size:.75rem; }
+.console { flex:1; padding:14px 16px; font-family:Consolas,monospace; font-size:.72rem;
+  line-height:1.5; white-space:pre-wrap; word-break:break-all; color:#9ca3af; min-height:380px; max-height:520px; overflow:auto; }
+.keys { border-top:1px solid var(--border); padding:12px 16px; display:grid; gap:6px; font-size:.78rem; }
+.keys div { display:flex; gap:8px; }
+.lbl { color:var(--muted); min-width:80px; }
+.val { color:#e5e7eb; font-family:Consolas,monospace; word-break:break-all; }
+footer { max-width:1200px; margin:24px auto 0; text-align:center; color:var(--muted); font-size:.78rem; }
+</style></head><body>
+<header>
+<h1>Canje de claves Diffie-Hellman</h1>
+<p>Dos servicios independientes (sin memoria compartida) intercambian <strong>solo</strong> <code>p</code>, <code>g</code>, <code>A</code> y <code>B</code> por la red.</p>
+<span class="badge">RFC 3526 · MODP 2048 bits · g = 2 · K = SHA-256(S)</span>
+</header>
+<div class="controls">
+<button>▶ Ejecutar intercambio</button>
+<span id="resultado" class="ok">✓ K_Alice == K_Bob  —  ¡canje exitoso!</span>
+</div>
+<div class="grid">
+<section class="panel alice">
+<div class="head">ALICE — consola del proceso 1 <small>docker logs dh-alice</small></div>
+<div class="console">════════════════════════════════════════════════════════════════════════
+INICIO DE CANJE DIFFIE-HELLMAN (lado Alice)
+[1] Parámetros públicos del grupo RFC 3526 (MODP 2048 bits):
+    p = 0xffffffffffffffffc90fdaa22168c234c4c6628b80dc1cd129024e088a67cc74020bbea63b139b22514a08798e3404ddef9519b3cd3a431b302b0a6df25f14374fe1356d6d51c245e485b576625e7ec6f44c42e9a637ed6b0bff5cb6f406b7edee386bfb5a899fa5ae9f24117c4b1fe649286651ece45b3dc2007cb8a163bf0598da48361c55d39a69163fa8fd24cf5f83655d23dca3ad961c62f356208552bb9ed529077096966d670c354e4abc9804f1746c08ca18217c32905e462e36ce3be39e772c180e86039b2783a2ec07a28fb5c55df06f4c52c9de2bcbf6955817183995497cea956ae515d2261898fa051015728e5a8aacaa68ffffffffffffffff  (2048 bits)
+    g = 2
+[2] Clave privada a generada localmente (secreta):
+    a = 0xa2404c3672699f207cbce7670bfbc0165ea3a0548dc41d127d1f1b6e81d867e1  (256 bits)
+[3] Clave pública calculada: A = g^a mod p
+    A = 0x9e4f54d3ac7b8c9791706ecf0243d1470701dfc4ea1cf1620e0f2f9d2c8340106a1fe6d9646c70ed83b089f71e67366f28a0039e27c2191dd483b3a73c3c94017616dd53612db4f8b2e80f0a35c3dc0ecd88afda93f733963dfe99be73252cf1424b9e5abfc3561cddb7951c74154232c3992ecd32e2ed21bb59ed3e669c27d2caecbace9a2cb0b6ecd5df80b6c659009b9cda6bccbdf26859ecd102064d8402240bf01c50ebafbb07f171eca278c34c210c8465633afa08c8e79b093fc83fc1b284f5ae8a5e34622bd8bb7bedbc92d53c1775a5b2fda705bd990ed8f6ef08135482ba99b2d8a8d3a11021b80782daac79a8e8cd1db7cb7db7bcf672c5e4586a
+[4] ENVIANDO por la red a Bob: únicamente {p, g, A}
+[5] RECIBIDO de Bob por la red: únicamente {B}
+    B = 0xeab6c0931f69df696708410dab2fc15dbdda46a75e309ccdb69144f1f64b8bf91240f795add133301f74567f61ef4f0ddc72da3460e192677266ed7a237d6b7a3b4654175db833e80ffb339af20bd6bc19d3b7f02f48aeb5b2b28b0890b4f79d9824d74281d04565025a0f10a3203122b2686301c7a315500918963afd12b196e49f0d099b6617ba16b89f26f8383a7f53c0e5dbdc03793f3fc108bc4a1dd5e9b389c6569bd6fc1443c432b6013daf205f45f2025e2c48c3c32ba7cb3eaaded76c949b6a6aa4e3e5faf4bbbfec0187089838430938f953988cb9ca3d50b57e5205ec1c88e1c0b235f3d40982a0ef184c4ceef47c36028e46ae2dffdb90211f32
+[6] Secreto compartido calculado en LOCAL: S = B^a mod p
+    S = 0x43096c08befa48567b7e545962c1532afca25f3eb97d34899cd4e0a0c243f38308ec16bbd75eba42ed3c4ab680dd0fdd57f649c72c62b6cb6a7c714ed7611d4974fedfdce56077689164fe49e180d73241daa85228d780bf24f0d07f6aff0386f111562959942edf0714172992e70c18a0aa20bd09189b724ce2503a0a902985a2f96c14815325483b52c5f823ce6fe6be177858f3e1abddb5975b600f97c9d775dc007fe7c902213726fb4e3b0014ea2fecdd76ea316313bb78ef4f4ab368ca30fc2fb319a2e848eaad5dc2b7dbb863a736bf7e0e4227f3b3177ca6cad8d4e8736e3bb0d64947f53ae7a30e821b7f069b6a481d8f3d44e61a4af4e5a8f58441
+[7] Llave compartida K = SHA-256(S):
+    K = bedd96d4a5c110afc6c47f77627f246e70dac92a41bac7e99bf05cf5840b9342
+[8] VALIDACIÓN: ✓ K_Alice == K_Bob  ¡CANJE EXITOSO!
+FIN — 2026-09-22T15:47:08+00:00
+</div>
+<div class="keys">
+<div><span class="lbl">privada:</span><span class="val">0xa2404c3672699f207cbce7670bfbc0165ea3a0548dc41d127d1f1b6e81d867e1</span></div>
+<div><span class="lbl">pública:</span><span class="val">0x9e4f54d3ac7b8c9791706ecf0243d1470701dfc4ea1cf1620e0f2f9d2c8340106a1fe6d9646c70ed83b089f71e67366f28a0039e27c2191dd483b3a73c3c94017616dd53612db4f8b2e80f0a35c3dc0ecd88afda93f733963dfe99be73252cf1424b9e5abfc3561cddb7951c74154232c3992ecd32e2ed21bb59ed3e669c27d2caecbace9a2cb0b6ecd5df80b6c659009b9cda6bccbdf26859ecd102064d8402240bf01c50ebafbb07f171eca278c34c210c8465633afa08c8e79b093fc83fc1b284f5ae8a5e34622bd8bb7bedbc92d53c1775a5b2fda705bd990ed8f6ef08135482ba99b2d8a8d3a11021b80782daac79a8e8cd1db7cb7db7bcf672c5e4586a</span></div>
+<div><span class="lbl">S:</span><span class="val">0x43096c08befa48567b7e545962c1532afca25f3eb97d34899cd4e0a0c243f38308ec16bbd75eba42ed3c4ab680dd0fdd57f649c72c62b6cb6a7c714ed7611d4974fedfdce56077689164fe49e180d73241daa85228d780bf24f0d07f6aff0386f111562959942edf0714172992e70c18a0aa20bd09189b724ce2503a0a902985a2f96c14815325483b52c5f823ce6fe6be177858f3e1abddb5975b600f97c9d775dc007fe7c902213726fb4e3b0014ea2fecdd76ea316313bb78ef4f4ab368ca30fc2fb319a2e848eaad5dc2b7dbb863a736bf7e0e4227f3b3177ca6cad8d4e8736e3bb0d64947f53ae7a30e821b7f069b6a481d8f3d44e61a4af4e5a8f58441</span></div>
+<div><span class="lbl">K:</span><span class="val">bedd96d4a5c110afc6c47f77627f246e70dac92a41bac7e99bf05cf5840b9342</span></div>
+</div>
+</section>
+<section class="panel bob">
+<div class="head">BOB — consola del proceso 2 <small>docker logs dh-bob</small></div>
+<div class="console">────────────────────────────────────────────────────────────────────────
+INICIO DE CANJE DIFFIE-HELLMAN (lado Bob)
+[1] Parámetros públicos recibidos de Alice
+    p = 0xffffffffffffffffc90fdaa22168c234c4c6628b80dc1cd129024e088a67cc74020bbea63b139b22514a08798e3404ddef9519b3cd3a431b302b0a6df25f14374fe1356d6d51c245e485b576625e7ec6f44c42e9a637ed6b0bff5cb6f406b7edee386bfb5a899fa5ae9f24117c4b1fe649286651ece45b3dc2007cb8a163bf0598da48361c55d39a69163fa8fd24cf5f83655d23dca3ad961c62f356208552bb9ed529077096966d670c354e4abc9804f1746c08ca18217c32905e462e36ce3be39e772c180e86039b2783a2ec07a28fb5c55df06f4c52c9de2bcbf6955817183995497cea956ae515d2261898fa051015728e5a8aacaa68ffffffffffffffff  (2048 bits)
+    g = 2
+[2] Clave privada b generada localmente (secreta):
+    b = 0xcf0d3b203651cc3431a6c91bb9fa2fd07835f969ed35288305d216acbfbe62db  (256 bits)
+[3] Clave pública calculada: B = g^b mod p
+    B = 0xeab6c0931f69df696708410dab2fc15dbdda46a75e309ccdb69144f1f64b8bf91240f795add133301f74567f61ef4f0ddc72da3460e192677266ed7a237d6b7a3b4654175db833e80ffb339af20bd6bc19d3b7f02f48aeb5b2b28b0890b4f79d9824d74281d04565025a0f10a3203122b2686301c7a315500918963afd12b196e49f0d099b6617ba16b89f26f8383a7f53c0e5dbdc03793f3fc108bc4a1dd5e9b389c6569bd6fc1443c432b6013daf205f45f2025e2c48c3c32ba7cb3eaaded76c949b6a6aa4e3e5faf4bbbfec0187089838430938f953988cb9ca3d50b57e5205ec1c88e1c0b235f3d40982a0ef184c4ceef47c36028e46ae2dffdb90211f32
+[4] Secreto compartido calculado en LOCAL: S = A^b mod p
+    S = 0x43096c08befa48567b7e545962c1532afca25f3eb97d34899cd4e0a0c243f38308ec16bbd75eba42ed3c4ab680dd0fdd57f649c72c62b6cb6a7c714ed7611d4974fedfdce56077689164fe49e180d73241daa85228d780bf24f0d07f6aff0386f111562959942edf0714172992e70c18a0aa20bd09189b724ce2503a0a902985a2f96c14815325483b52c5f823ce6fe6be177858f3e1abddb5975b600f97c9d775dc007fe7c902213726fb4e3b0014ea2fecdd76ea316313bb78ef4f4ab368ca30fc2fb319a2e848eaad5dc2b7dbb863a736bf7e0e4227f3b3177ca6cad8d4e8736e3bb0d64947f53ae7a30e821b7f069b6a481d8f3d44e61a4af4e5a8f58441
+[5] Llave compartida K = SHA-256(S):
+    K = bedd96d4a5c110afc6c47f77627f246e70dac92a41bac7e99bf05cf5840b9342
+[6] VALIDACIÓN local: K de Bob calculada correctamente.
+    (La igualdad K_Alice == K_Bob se comprueba en la página web)
+FIN — 2026-09-22T15:47:08+00:00
+</div>
+<div class="keys">
+<div><span class="lbl">privada:</span><span class="val">0xcf0d3b203651cc3431a6c91bb9fa2fd07835f969ed35288305d216acbfbe62db</span></div>
+<div><span class="lbl">pública:</span><span class="val">0xeab6c0931f69df696708410dab2fc15dbdda46a75e309ccdb69144f1f64b8bf91240f795add133301f74567f61ef4f0ddc72da3460e192677266ed7a237d6b7a3b4654175db833e80ffb339af20bd6bc19d3b7f02f48aeb5b2b28b0890b4f79d9824d74281d04565025a0f10a3203122b2686301c7a315500918963afd12b196e49f0d099b6617ba16b89f26f8383a7f53c0e5dbdc03793f3fc108bc4a1dd5e9b389c6569bd6fc1443c432b6013daf205f45f2025e2c48c3c32ba7cb3eaaded76c949b6a6aa4e3e5faf4bbbfec0187089838430938f953988cb9ca3d50b57e5205ec1c88e1c0b235f3d40982a0ef184c4ceef47c36028e46ae2dffdb90211f32</span></div>
+<div><span class="lbl">S:</span><span class="val">0x43096c08befa48567b7e545962c1532afca25f3eb97d34899cd4e0a0c243f38308ec16bbd75eba42ed3c4ab680dd0fdd57f649c72c62b6cb6a7c714ed7611d4974fedfdce56077689164fe49e180d73241daa85228d780bf24f0d07f6aff0386f111562959942edf0714172992e70c18a0aa20bd09189b724ce2503a0a902985a2f96c14815325483b52c5f823ce6fe6be177858f3e1abddb5975b600f97c9d775dc007fe7c902213726fb4e3b0014ea2fecdd76ea316313bb78ef4f4ab368ca30fc2fb319a2e848eaad5dc2b7dbb863a736bf7e0e4227f3b3177ca6cad8d4e8736e3bb0d64947f53ae7a30e821b7f069b6a481d8f3d44e61a4af4e5a8f58441</span></div>
+<div><span class="lbl">K:</span><span class="val">bedd96d4a5c110afc6c47f77627f246e70dac92a41bac7e99bf05cf5840b9342</span></div>
+</div>
+</section>
+</div>
+<footer>Servicios <strong>dh-alice</strong> y <strong>dh-bob</strong> en Docker · red <code>services</code> ·
+publicado en <code>dh.maxthecoder.online</code> vía Cloudflare Tunnel</footer>
+</body></html>

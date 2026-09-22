@@ -1,0 +1,34 @@
+# Diffie-Hellman · Alice ↔ Bob
+#
+# Dos aplicaciones Flask independientes (sin memoria compartida) que ejecutan
+# el protocolo de intercambio de claves Diffie-Hellman comunicándose SOLO por
+# HTTP a través de la red Docker "services" (la misma red externa donde vive
+# el contenedor cloudflare-tunnel de la Pi).
+#
+#   dh-alice : servicio público → https://dh.maxthecoder.online
+#   dh-bob   : servicio interno → solo alcanzable desde la red services
+#
+# Ningún puerto se publica en el host: todo el tráfico entra por el túnel.
+
+services:
+  dh-alice:
+    build: ./alice
+    container_name: dh-alice
+    restart: unless-stopped
+    environment:
+      # Bob se resuelve por el nombre del contenedor dentro de la red Docker.
+      BOB_URL: http://dh-bob:5000
+    networks:
+      - services
+
+  dh-bob:
+    build: ./bob
+    container_name: dh-bob
+    restart: unless-stopped
+    networks:
+      - services
+
+networks:
+  # Red externa creada en /opt/docker/compose.yml de la Pi.
+  services:
+    external: true
