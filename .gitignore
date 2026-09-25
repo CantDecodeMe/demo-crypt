@@ -6,3 +6,7 @@ venv/
 .env
 .DS_Store
 *.log
+
+# Solo el README es visible en el repo; el resto de .md queda local
+*.md
+!README.md
