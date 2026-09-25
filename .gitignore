@@ -10,3 +10,6 @@ venv/
 # Solo el README es visible en el repo; el resto de .md queda local
 *.md
 !README.md
+
+# Script de Cloudflare: solo local (contiene IDs de cuenta y tunel)
+setup_cloudflare.sh
