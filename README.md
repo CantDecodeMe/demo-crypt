@@ -27,6 +27,43 @@ Navegador ──HTTPS──► Cloudflare ──túnel──► dh-alice:5000  (
 Ambos corren en la red externa `services` (la misma que `cloudflare-tunnel`);
 **ningún puerto se publica en el host**: todo el tráfico entra por el túnel.
 
+## Código del HTTP interno
+
+Esto es exactamente lo que hace la petición HTTP de Alice hacia Bob (Alice —
+[`alice/app.py`](alice/app.py)):
+
+```python
+resp = requests.post(
+    f"{BOB_URL}/canje",
+    # p y A viajan como string: enteros de 2048 bits seguros en JSON.
+    json={"p": str(p), "g": g, "A": str(A)},
+    timeout=15,
+)
+resp.raise_for_status()
+datos = resp.json()
+```
+
+Y esto es el endpoint que la recibe y responde en Bob (Bob —
+[`bob/app.py`](bob/app.py)):
+
+```python
+@app.route("/canje", methods=["POST"])
+def canje():
+    """
+    Recibe {p, g, A} de Alice y responde únicamente {B}.
+
+    Este es el ÚNICO mensaje del protocolo que Bob emite.
+    """
+    datos = request.get_json(silent=True)
+    ...
+    # ÚNICA RESPUESTA DEL PROTOCOLO: la clave pública B.
+    return jsonify({"B": str(B)})
+```
+
+Nótese que el cuerpo JSON solo lleva `p`, `g`, `A` (ida) y `B` (vuelta); las
+claves privadas `a`/`b` y el secreto `S` nunca aparecen en el código que toca
+la red — se calculan y se quedan en variables locales de cada proceso.
+
 ## Requisitos cubiertos
 
 - [x] Dos aplicaciones distintas (Alice y Bob) en paralelo, sin memoria compartida
